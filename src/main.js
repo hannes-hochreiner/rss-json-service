@@ -88,7 +88,12 @@ app.get('/channels', (req, res) => {
 app.post('/channels', (req, res) => {
   let url = req.body.url;
 
-  addOrUpdateChannelFromUrl(url).catch(error => {
+  addOrUpdateChannelFromUrl(url).then(() => {
+    res.send({
+      ok: true,
+      id: sha256hash(url)
+    });
+  }).catch(error => {
     res.send({error: error.toString()});
   });
 });
@@ -155,11 +160,6 @@ function addOrUpdateChannelFromUrl(url) {
           });
         });
       }));
-    }).then(() => {
-      res.send({
-        ok: true,
-        id: id
-      });
     });
   });
 }
