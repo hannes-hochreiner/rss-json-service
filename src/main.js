@@ -1,3 +1,4 @@
+import {default as timer} from 'timers';
 import {default as express} from 'express';
 import {default as bodyParser} from 'body-parser';
 import {default as pouchdb} from 'pouchdb';
@@ -6,7 +7,7 @@ import {httpRequest, httpForward} from './httpRequest';
 import {parseRssJsObject} from './rssJsObjectParser';
 import {parseXml} from './xmlParser';
 import {sha256hash} from './sha256hash';
-import {mergePropertiesFromObject} from 'objectMerger';
+import {mergePropertiesFromObject} from './objectMerger';
 
 let app = express();
 let pouch = new pouchdb('podcasts.pouchdb');
@@ -95,6 +96,18 @@ app.post('/channels', (req, res) => {
 app.listen(8888, () => {
   console.log('listening on http://[::1]:8888');
 });
+
+timer.setInterval(() => {
+  pouch.allDocs({
+    include_docs: true,
+    startkey: 'channels/',
+    endkey: 'channels/\ufff0'
+  }).then(data => {
+    data.rows.forEach(row => {
+      addOrUpdateChannelFromUrl(row.doc.url);
+    });
+  });
+}, 1000 * 3600 * 24);
 
 function addOrUpdateChannelFromUrl(url) {
   return httpRequest(url).then(data => {
