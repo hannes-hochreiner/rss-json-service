@@ -11,12 +11,19 @@ import {mergePropertiesFromObject} from './objectMerger';
 
 let app = express();
 let pouch = new pouchdb('podcasts.pouchdb');
+let corsHeaders = {
+  'Access-Control-Allow-Origin': 'https://hannes-hochreiner.github.io',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Credentials': 'false',
+  'Access-Control-Allow-Headers': 'Authorization,Origin,Content-Type,Accept'
+};
 
 app.use(bodyParser.json());
 
 // curl -H 'Accept: application/json' [::1]:8888/channels/7107621ce28a789b44362a5f12ee7c5e9b068adf4e7b1b139cfd6d6927f07f38/items/fa0054fda3144d0241c6a02824f3d94d81a6630b2ae2e1644f3d4ef3ca306e75
 // curl -H 'Accept: audio/mpeg' [::1]:8888/channels/7107621ce28a789b44362a5f12ee7c5e9b068adf4e7b1b139cfd6d6927f07f38/items/fa0054fda3144d0241c6a02824f3d94d81a6630b2ae2e1644f3d4ef3ca306e75
 app.get('/channels/:channelid/items/:itemid', (req, res) => {
+  res.set(corsHeaders);
   pouch.get(`items/${req.params.channelid}/${req.params.itemid}`).then(data => {
     if (req.accepts('json')) {
       res.send({
@@ -35,6 +42,7 @@ app.get('/channels/:channelid/items/:itemid', (req, res) => {
 
 // curl [::1]:8888/channels/7107621ce28a789b44362a5f12ee7c5e9b068adf4e7b1b139cfd6d6927f07f38/items
 app.get('/channels/:channelid/items', (req, res) => {
+  res.set(corsHeaders);
   pouch.allDocs({
     include_docs: true,
     startkey: `items/${req.params.channelid}/`,
@@ -53,6 +61,7 @@ app.get('/channels/:channelid/items', (req, res) => {
 
 // curl [::1]:8888/channels/7107621ce28a789b44362a5f12ee7c5e9b068adf4e7b1b139cfd6d6927f07f38
 app.get('/channels/:channelid', (req, res) => {
+  res.set(corsHeaders);
   pouch.get(`channels/${req.params.channelid}`).then(data => {
     res.send({
       ok: true,
@@ -65,6 +74,7 @@ app.get('/channels/:channelid', (req, res) => {
 
 // curl [::1]:8888/channels
 app.get('/channels', (req, res) => {
+  res.set(corsHeaders);
   pouch.allDocs({
     include_docs: true,
     startkey: 'channels/',
@@ -86,6 +96,7 @@ app.get('/channels', (req, res) => {
 // curl -H "content-type: application/json" -d '{"url": "http://www.cbc.ca/podcasting/includes/spark.xml"}' [::1]:8888/channels
 // curl -H "content-type: application/json" -d '{"url": "https://rss.art19.com/talking-machines"}' [::1]:8888/channels
 app.post('/channels', (req, res) => {
+  res.set(corsHeaders);
   let url = req.body.url;
 
   addOrUpdateChannelFromUrl(url).then(() => {
@@ -96,6 +107,11 @@ app.post('/channels', (req, res) => {
   }).catch(error => {
     res.send({error: error.toString()});
   });
+});
+
+app.options('*', (req, res) => {
+  res.set(corsHeaders);
+  res.status(204).end();
 });
 
 app.listen(8888, () => {

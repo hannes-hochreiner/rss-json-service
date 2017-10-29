@@ -8,6 +8,7 @@ yarn-error.log*
 # build files
 bld
 test_bld
+podcasts.pouchdb
 
 # Runtime data
 pids
