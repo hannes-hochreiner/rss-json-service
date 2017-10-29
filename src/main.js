@@ -21,7 +21,7 @@ app.get('/channels/:channelid/items/:itemid', (req, res) => {
     if (req.accepts('json')) {
       res.send({
         ok: true,
-        item: data
+        item: deleteInternalKeys(data)
       });
     } else if (req.accepts('audio/mpeg')) {
       httpForward(data.enclosure.url, res);
@@ -43,7 +43,7 @@ app.get('/channels/:channelid/items', (req, res) => {
     res.send({
       ok: true,
       items: data.rows.map(row => {
-        return row.doc;
+        return deleteInternalKeys(row.doc);
       })
     });
   }).catch(error => {
@@ -56,7 +56,7 @@ app.get('/channels/:channelid', (req, res) => {
   pouch.get(`channels/${req.params.channelid}`).then(data => {
     res.send({
       ok: true,
-      channel: data
+      channel: deleteInternalKeys(data)
     });
   }).catch(error => {
     res.send({error: error.toString()});
@@ -73,7 +73,7 @@ app.get('/channels', (req, res) => {
     res.send({
       ok: true,
       channels: data.rows.map(row => {
-        return row.doc;
+        return deleteInternalKeys(row.doc);
       })
     });
   }).catch(error => {
@@ -113,6 +113,16 @@ timer.setInterval(() => {
     });
   });
 }, 1000 * 3600 * 24);
+
+function deleteInternalKeys(obj) {
+  Object.keys(obj).filter(key => {
+    return key[0] === '_';
+  }).forEach(key => {
+    delete obj[key];
+  });
+
+  return obj;
+}
 
 function addOrUpdateChannelFromUrl(url) {
   return httpRequest(url).then(data => {
