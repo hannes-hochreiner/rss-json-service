@@ -8,6 +8,7 @@ import {parseRssJsObject} from './rssJsObjectParser';
 import {parseXml} from './xmlParser';
 import {sha256hash} from './sha256hash';
 import {mergePropertiesFromObject} from './objectMerger';
+import {deleteInternalKeys} from './utils';
 
 let app = express();
 let pouch = new pouchdb('podcasts.pouchdb');
@@ -114,16 +115,6 @@ timer.setInterval(() => {
   });
 }, 1000 * 3600 * 24);
 
-function deleteInternalKeys(obj) {
-  Object.keys(obj).filter(key => {
-    return key[0] === '_';
-  }).forEach(key => {
-    delete obj[key];
-  });
-
-  return obj;
-}
-
 function addOrUpdateChannelFromUrl(url) {
   return httpRequest(url).then(data => {
     return parseXml(data);
@@ -155,6 +146,7 @@ function addOrUpdateChannelFromUrl(url) {
           _id: `items/${channel.id}/${id}`,
           id: id,
           title: itm.title,
+          date: itm.date,
           enclosure: itm.enclosure
         };
 
@@ -164,7 +156,7 @@ function addOrUpdateChannelFromUrl(url) {
           }
 
           return pouch.get(newItm._id).then(exItem => {
-            if (mergePropertiesFromObject(exItem, ['title', 'enclosure'], newItm)) {
+            if (mergePropertiesFromObject(exItem, ['title', 'date', 'enclosure'], newItm)) {
               return pouch.put(exItem);
             }
           });
