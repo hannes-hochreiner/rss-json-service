@@ -21,7 +21,7 @@ export function httpForward(url, stream) {
       let error;
 
       if (statusCode !== 200) {
-        if (statusCode === 301) {
+        if (statusCode === 301 || statusCode === 302) {
           res.resume();
           return httpForward(res.headers.location, stream);
         } else {
