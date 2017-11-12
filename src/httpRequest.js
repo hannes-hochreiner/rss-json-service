@@ -21,7 +21,7 @@ export function httpForward(url, stream) {
       let error;
 
       if (statusCode !== 200) {
-        if (statusCode === 301 || statusCode === 302) {
+        if (statusCode === 301 || statusCode === 302 || statusCode === 307 || statusCode === 308) {
           res.resume();
           return httpForward(res.headers.location, stream);
         } else {
@@ -67,14 +67,16 @@ export function httpRequest(url) {
       let error;
 
       if (statusCode !== 200) {
-        error = new Error(`Request Failed.\nStatus Code: ${statusCode}`);
-      }
-
-      if (error) {
-        // consume response data to free up memory
-        res.resume();
-        reject(error);
-        return;
+        if (statusCode === 301 || statusCode === 302 || statusCode === 307 || statusCode === 308) {
+          res.resume();
+          return httpForward(res.headers.location, stream);
+        } else {
+          // consume response data to free up memory
+          res.resume();
+          error = new Error(`Request Failed.\nStatus Code: ${statusCode}`);
+          reject(error);
+          return;
+        }
       }
 
       res.setEncoding('utf8');
