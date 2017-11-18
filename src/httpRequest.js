@@ -2,91 +2,76 @@ import { default as urlModule } from 'url';
 import { default as http } from 'http';
 import { default as https } from 'https';
 
-export function httpForward(url, stream) {
-  return new Promise((resolve, reject) => {
-    let urlObj = new urlModule.parse(url);
-    let req;
-
-    if (urlObj.protocol === 'http:') {
-      req = http;
-    } else if (urlObj.protocol === 'https:') {
-      req = https;
-    } else {
-      reject(new Error(`Unknown protocol ${urlObj.protocol}`));
-      return;
-    }
-
-    req.get(url, (res) => {
-      const { statusCode } = res;
-      let error;
-
-      if (statusCode !== 200) {
-        if (statusCode === 301 || statusCode === 302 || statusCode === 307 || statusCode === 308) {
-          res.resume();
-          return httpForward(res.headers.location, stream);
-        } else {
-          // consume response data to free up memory
-          res.resume();
-          error = new Error(`Request Failed.\nStatus Code: ${statusCode}`);
-          reject(error);
-          return;
-        }
-      }
-
-      stream.append('content-length', res.headers['content-length']);
-
-      res.on('data', (chunk) => {
-        stream.write(chunk);
-      });
-      res.on('end', () => {
-        stream.end();
-        resolve();
-      });
-    }).on('error', (error) => {
-      reject(error);
-    });
-  });
+export function httpForward(url, method, stream) {
+  return _request(url, method, stream);
 }
 
 export function httpRequest(url) {
-  return new Promise((resolve, reject) => {
-    let urlObj = new urlModule.parse(url);
-    let req;
+  return _request(url);
+}
 
-    if (urlObj.protocol === 'http:') {
-      req = http;
-    } else if (urlObj.protocol === 'https:') {
-      req = https;
+function _request(url, method, stream) {
+  return new Promise((resolve, reject) => {
+    let options = new urlModule.parse(url);
+    let prot;
+
+    if (options.protocol === 'http:') {
+      prot = http;
+    } else if (options.protocol === 'https:') {
+      prot = https;
     } else {
-      reject(new Error(`Unknown protocol ${urlObj.protocol}`));
+      reject(new Error(`Unknown protocol ${options.protocol}`));
       return;
     }
 
-    req.get(url, (res) => {
+    if (method) {
+      options.method = method;
+    }
+
+    let req = prot.request(options, (res) => {
       const { statusCode } = res;
       let error;
 
       if (statusCode !== 200) {
         if (statusCode === 301 || statusCode === 302 || statusCode === 307 || statusCode === 308) {
           res.resume();
-          return httpForward(res.headers.location, stream);
+          return _request(res.headers.location, method, stream);
         } else {
           // consume response data to free up memory
           res.resume();
-          error = new Error(`Request Failed.\nStatus Code: ${statusCode}`);
-          reject(error);
+          reject(new Error(`Request Failed.\nStatus Code: ${statusCode}`));
           return;
         }
       }
 
-      res.setEncoding('utf8');
       let rawData = '';
-      res.on('data', (chunk) => { rawData += chunk; });
+
+      if (stream) {
+        stream.append('content-length', res.headers['content-length']);
+      } else {
+        res.setEncoding('utf8');
+      }
+
+      res.on('data', (chunk) => {
+        if (stream) {
+          stream.write(chunk);
+        } else {
+          rawData += chunk;
+        }
+      });
       res.on('end', () => {
+        if (stream) {
+          stream.end();
+        }
+
         resolve(rawData);
       });
-    }).on('error', (error) => {
+    });
+
+    req.on('error', (error) => {
       reject(error);
     });
+
+    req.end();
   });
 }

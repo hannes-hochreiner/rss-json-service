@@ -6,7 +6,7 @@
   "scripts": {
     "test": "npm run build && babel test_src --out-dir test_bld && jasmine JASMINE_CONFIG_PATH=jasmine.json",
     "build": "babel src --out-dir bld",
-    "run": "npm run build && node bld/main"
+    "start": "npm run build && node bld/main"
   },
   "repository": {
     "type": "git",

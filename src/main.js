@@ -15,6 +15,21 @@ let pouch = new pouchdb('podcasts.pouchdb');
 
 app.use(bodyParser.json());
 
+// curl -H 'Accept: application/json' [::1]:8888/channels/7b9fe424014d93d9cc2cb83ae5cd0b63323e8739b1576b1bd055cef12990dc8a/items/e232d8d4ca4ab5f9fcaa3f1f34a560d69a86eb69df31e535fa64ae90f548899b
+// curl -H 'Accept: audio/mpeg' [::1]:8888/channels/7b9fe424014d93d9cc2cb83ae5cd0b63323e8739b1576b1bd055cef12990dc8a/items/e232d8d4ca4ab5f9fcaa3f1f34a560d69a86eb69df31e535fa64ae90f548899b
+// curl --head -H 'Accept: audio/mpeg' [::1]:8888/channels/7b9fe424014d93d9cc2cb83ae5cd0b63323e8739b1576b1bd055cef12990dc8a/items/e232d8d4ca4ab5f9fcaa3f1f34a560d69a86eb69df31e535fa64ae90f548899b
+app.head('/channels/:channelid/items/:itemid', (req, res) => {
+  pouch.get(`items/${req.params.channelid}/${req.params.itemid}`).then(data => {
+    if (req.accepts('audio/mpeg')) {
+      httpForward(data.enclosure.url, 'HEAD', res);
+    } else {
+      res.status(406).end();
+    }
+  }).catch(error => {
+    res.send({error: error.toString()});
+  });
+});
+
 // curl -H 'Accept: application/json' [::1]:8888/channels/7107621ce28a789b44362a5f12ee7c5e9b068adf4e7b1b139cfd6d6927f07f38/items/fa0054fda3144d0241c6a02824f3d94d81a6630b2ae2e1644f3d4ef3ca306e75
 // curl -H 'Accept: audio/mpeg' [::1]:8888/channels/7107621ce28a789b44362a5f12ee7c5e9b068adf4e7b1b139cfd6d6927f07f38/items/fa0054fda3144d0241c6a02824f3d94d81a6630b2ae2e1644f3d4ef3ca306e75
 app.get('/channels/:channelid/items/:itemid', (req, res) => {
@@ -25,7 +40,7 @@ app.get('/channels/:channelid/items/:itemid', (req, res) => {
         item: deleteInternalKeys(data)
       });
     } else if (req.accepts('audio/mpeg')) {
-      httpForward(data.enclosure.url, res);
+      httpForward(data.enclosure.url, 'GET', res);
     } else {
       res.status(406).end();
     }
