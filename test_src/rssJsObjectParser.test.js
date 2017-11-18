@@ -88,4 +88,22 @@ describe('parseRssJsObject', () => {
       });
     });
   });
+
+  it('should parse lancet feeds', () => {
+    let parser = new xml2js.Parser();
+
+    fs.readFile('testFiles/lanonc.xml', function(err, data) {
+      parser.parseString(data, function (err, result) {
+        expect(parseRssJsObject(result)).toEqual({
+          title: 'Listen to The Lancet Oncology',
+          description: 'The Lancet Oncology is a monthly journal, renowned for the publication of high-quality peer reviewed research, reviews and analysis in cancer from around the world. In the monthly podcasts, editors of the journal discuss highlights of the current issue.',
+          items: [
+            { date: '2017-11-01T06:30:00.000Z', guid: 'http://www.thelancet.com/pb-assets/Lancet/stories/audio/lanonc/2017/lanonc_171031_moonshot.mp3', title: 'Future cancer research priorities in the USA: The Lancet Oncology Commission: October 31, 2017', enclosure: { url: 'http://www.thelancet.com/pb-assets/Lancet/stories/audio/lanonc/2017/lanonc_171031_moonshot.mp3', type: 'audio/mpeg' }},
+            { date: '2017-09-28T14:30:00.000Z', guid: 'http://www.thelancet.com/pb-assets/Lancet/stories/audio/lanonc/2017/lanonc_170927_peru.mp3', title: 'Cancer in Peru: The Lancet Oncology', enclosure: { url: 'http://www.thelancet.com/pb-assets/Lancet/stories/audio/lanonc/2017/lanonc_170927_peru.mp3', type: 'audio/mpeg' }},
+            { date: '1970-01-01T00:00:00.000Z', guid: 'http://www.thelancet.com/pb-assets/Lancet/stories/audio/lanonc/2017/lanonc_170726_indels.mp3', title: 'Indel derived tumour-specific neoantigens: The Lancet Oncology: Aug 2017', enclosure: { url: 'http://www.thelancet.com/pb-assets/Lancet/stories/audio/lanonc/2017/lanonc_170726_indels.mp3', type: 'audio/mpeg' }}
+          ]
+        });
+      });
+    });
+  });
 });

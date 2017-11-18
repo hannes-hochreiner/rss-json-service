@@ -11,8 +11,14 @@ export function parseRssJsObject(obj) {
       throw new Error('Could not find GUID of item.');
     }
 
+    let pubDate = '1970-01-01T00:00:00.000Z';
+
+    if (itm.pubDate && itm.pubDate[0]) {
+      pubDate = itm.pubDate[0];
+    }
+
     newItm['guid'] = guid;
-    newItm['date'] = (new Date(itm.pubDate[0])).toISOString();
+    newItm['date'] = (new Date(pubDate)).toISOString();
     newItm['title'] = itm.title[0];
 
     if (itm.enclosure) {
