@@ -21,11 +21,14 @@ app.use(bodyParser.json());
 app.head('/channels/:channelid/items/:itemid', (req, res) => {
   pouch.get(`items/${req.params.channelid}/${req.params.itemid}`).then(data => {
     if (req.accepts('audio/mpeg')) {
-      httpForward(data.enclosure.url, 'HEAD', res);
+      return httpForward(data.enclosure.url, 'HEAD', res);
     } else {
       res.status(406).end();
+
+      return Promise.resolve();
     }
   }).catch(error => {
+    console.log(error);
     res.send({error: error.toString()});
   });
 });
@@ -39,12 +42,16 @@ app.get('/channels/:channelid/items/:itemid', (req, res) => {
         ok: true,
         item: deleteInternalKeys(data)
       });
+      return Promise.resolve();
     } else if (req.accepts('audio/mpeg')) {
-      httpForward(data.enclosure.url, 'GET', res);
+      return httpForward(data.enclosure.url, 'GET', res);
     } else {
       res.status(406).end();
+
+      return Promise.resolve();
     }
   }).catch(error => {
+    console.log(error);
     res.send({error: error.toString()});
   });
 });
@@ -62,7 +69,10 @@ app.get('/channels/:channelid/items', (req, res) => {
         return deleteInternalKeys(row.doc);
       })
     });
+
+    return Promise.resolve();
   }).catch(error => {
+    console.log(error);
     res.send({error: error.toString()});
   });
 });
@@ -74,7 +84,10 @@ app.get('/channels/:channelid', (req, res) => {
       ok: true,
       channel: deleteInternalKeys(data)
     });
+
+    return Promise.resolve();
   }).catch(error => {
+    console.log(error);
     res.send({error: error.toString()});
   });
 });
@@ -92,7 +105,10 @@ app.get('/channels', (req, res) => {
         return deleteInternalKeys(row.doc);
       })
     });
+
+    return Promise.resolve();
   }).catch(error => {
+    console.log(error);
     res.send({error: error.toString()});
   });
 });
@@ -110,6 +126,7 @@ app.post('/channels', (req, res) => {
       id: sha256hash(url)
     });
   }).catch(error => {
+    console.log(error);
     res.send({error: error.toString()});
   });
 });
@@ -125,7 +142,9 @@ timer.setInterval(() => {
     endkey: 'channels/\ufff0'
   }).then(data => {
     data.rows.forEach(row => {
-      addOrUpdateChannelFromUrl(row.doc.url);
+      addOrUpdateChannelFromUrl(row.doc.url).catch(error => {
+        console.log(`error updating ${row.doc.url}: ${error}`);
+      });
     });
   });
 }, 1000 * 3600 * 24);
