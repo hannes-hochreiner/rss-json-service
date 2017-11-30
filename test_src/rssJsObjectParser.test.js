@@ -106,4 +106,20 @@ describe('parseRssJsObject', () => {
       });
     });
   });
+
+  it('should parse francais facil feeds', () => {
+    let parser = new xml2js.Parser();
+
+    fs.readFile('testFiles/francais_facil.xml', function(err, data) {
+      parser.parseString(data, function (err, result) {
+        expect(parseRssJsObject(result)).toEqual({
+          title: 'RFI - Journal en français facile 20H TU',
+          description: 'Un journal qui présente l\'actualité avec des mots simples et explique les évènements et leur contexte pour rendre l\'information en français accessible à tous.',
+          items: [
+            { date: '2017-11-29T20:00:00.000Z', guid: '1_D142_1568839', title: 'Journal en français facile du 29/11/2017  - 20h00 TU', enclosure: { url: 'http://telechargement.rfi.fr/rfi/francais/audio/jff/201711/journal_francais_facile_20h00_-_20h10_tu_20171129.mp3', type: 'audio/mpeg' }},
+          ]
+        });
+      });
+    });
+  });
 });
