@@ -141,11 +141,13 @@ timer.setInterval(() => {
     startkey: 'channels/',
     endkey: 'channels/\ufff0'
   }).then(data => {
-    data.rows.forEach(row => {
-      addOrUpdateChannelFromUrl(row.doc.url).catch(error => {
+    return Promise.all(data.rows.map(row => {
+      return addOrUpdateChannelFromUrl(row.doc.url).catch(error => {
         console.log(`error updating ${row.doc.url}: ${error}`);
       });
-    });
+    }));
+  }).catch(error => {
+    console.log(`error updating feeds: ${error}`);
   });
 }, 1000 * 3600 * 24);
 
