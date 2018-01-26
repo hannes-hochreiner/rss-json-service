@@ -122,4 +122,22 @@ describe('parseRssJsObject', () => {
       });
     });
   });
+
+  it('should parse command line hero feeds', () => {
+    let parser = new xml2js.Parser();
+
+    fs.readFile('testFiles/clh.xml', function(err, data) {
+      parser.parseString(data, function (err, result) {
+        expect(parseRssJsObject(result)).toEqual({
+          title: 'Command Line Heroes',
+          description: 'Stories about the people transforming technology from the command line up.',
+          items: [
+            { date: '2018-01-16T06:01:00.000Z', guid: '36fda030-1e17-4f0c-8c74-8dae35e95daa', title: 'OS Wars_part 1', enclosure: { url: 'https://tracking.feedpress.it/link/18442/8049593/f7670e99.mp3', type: 'audio/mpeg' }},
+            { date: '2018-01-16T06:00:00.000Z', guid: '0e52b0be-4c91-48fe-b8a2-cfad32df28b8', title: 'OS Wars_part 2: Rise of Linux', enclosure: { url: 'https://tracking.feedpress.it/link/18442/8049594/2199861a.mp3', type: 'audio/mpeg' }},
+            { date: '2017-12-01T14:00:00.000Z', guid: '2945a8ce-3d3e-47d5-b45b-2bcb7c0c73c9', title: 'Preview_CLH', enclosure: { url: 'https://tracking.feedpress.it/link/18442/7582651/3def9db9.mp3', type: 'audio/mpeg' }}
+          ]
+        });
+      });
+    });
+  });
 });
