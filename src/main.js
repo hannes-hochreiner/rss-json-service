@@ -155,49 +155,53 @@ function addOrUpdateChannelFromUrl(url) {
   return httpRequest(url).then(data => {
     return parseXml(data);
   }).then(data => {
-    let obj = parseRssJsObject(data);
-    let id = sha256hash(url);
-    let channel = {
-      _id: `channels/${id}`,
-      id: id,
-      title: obj.title,
-      description: obj.description,
-      url: url
-    };
+    try {
+      let obj = parseRssJsObject(data);
+      let id = sha256hash(url);
+      let channel = {
+        _id: `channels/${id}`,
+        id: id,
+        title: obj.title,
+        description: obj.description,
+        url: url
+      };
 
-    return pouch.put(channel).catch(error => {
-      if (error.status != 409) {
-        return new Promise((resolve, reject) => { reject(error); });
-      }
-
-      return pouch.get(channel._id).then(chan => {
-        if (mergePropertiesFromObject(chan, ['title', 'description'], channel)) {
-          return pouch.put(chan);
+      return pouch.put(channel).catch(error => {
+        if (error.status != 409) {
+          return new Promise((resolve, reject) => { reject(error); });
         }
-      });
-    }).then(() => {
-      return Promise.all(obj.items.map(itm => {
-        let id = sha256hash(itm.guid);
-        let newItm = {
-          _id: `items/${channel.id}/${id}`,
-          id: id,
-          title: itm.title,
-          date: itm.date,
-          enclosure: itm.enclosure
-        };
 
-        return pouch.put(newItm).catch(error => {
-          if (error.status != 409) {
-            return new Promise((resolve, reject) => { reject(error); });
+        return pouch.get(channel._id).then(chan => {
+          if (mergePropertiesFromObject(chan, ['title', 'description'], channel)) {
+            return pouch.put(chan);
           }
-
-          return pouch.get(newItm._id).then(exItem => {
-            if (mergePropertiesFromObject(exItem, ['title', 'date', 'enclosure'], newItm)) {
-              return pouch.put(exItem);
-            }
-          });
         });
-      }));
-    });
+      }).then(() => {
+        return Promise.all(obj.items.map(itm => {
+          let id = sha256hash(itm.guid);
+          let newItm = {
+            _id: `items/${channel.id}/${id}`,
+            id: id,
+            title: itm.title,
+            date: itm.date,
+            enclosure: itm.enclosure
+          };
+
+          return pouch.put(newItm).catch(error => {
+            if (error.status != 409) {
+              return new Promise((resolve, reject) => { reject(error); });
+            }
+
+            return pouch.get(newItm._id).then(exItem => {
+              if (mergePropertiesFromObject(exItem, ['title', 'date', 'enclosure'], newItm)) {
+                return pouch.put(exItem);
+              }
+            });
+          });
+        }));
+      });
+    } catch (e) {
+      return Promise.reject(e);
+    }
   });
 }
