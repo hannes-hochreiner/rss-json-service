@@ -48,9 +48,10 @@ function _request(url, method, stream) {
 
       let rawData = '';
 
-      if (stream) {
-        stream.append('content-length', res.headers['content-length']);
-      } else {
+      // if (stream) {
+      //   stream.append('content-length', res.headers['content-length']);
+      // } else {
+      if (!stream) {
         res.setEncoding('utf8');
       }
 
