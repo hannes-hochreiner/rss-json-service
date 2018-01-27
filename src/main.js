@@ -58,19 +58,19 @@ app.get('/channels/:channelid/items/:itemid', (req, res) => {
 
 // curl [::1]:8888/channels/7107621ce28a789b44362a5f12ee7c5e9b068adf4e7b1b139cfd6d6927f07f38/items
 app.get('/channels/:channelid/items', (req, res) => {
+  console.log(`getting items for channel with id '${req.params.channelid}'`);
   pouch.allDocs({
     include_docs: true,
     startkey: `items/${req.params.channelid}/`,
     endkey: `items/${req.params.channelid}/\ufff0`
   }).then(data => {
+    console.log(`got ${data.rows.length} items for channel with id '${req.params.channelid}'`);
     res.send({
       ok: true,
       items: data.rows.map(row => {
         return deleteInternalKeys(row.doc);
       })
     });
-
-    return Promise.resolve();
   }).catch(error => {
     console.log(error);
     res.send({error: error.toString()});
@@ -79,13 +79,13 @@ app.get('/channels/:channelid/items', (req, res) => {
 
 // curl [::1]:8888/channels/7107621ce28a789b44362a5f12ee7c5e9b068adf4e7b1b139cfd6d6927f07f38
 app.get('/channels/:channelid', (req, res) => {
+  console.log(`getting channel with id '${req.params.channelid}'`);
   pouch.get(`channels/${req.params.channelid}`).then(data => {
+    console.log(`got channel with id '${req.params.channelid}'`);
     res.send({
       ok: true,
       channel: deleteInternalKeys(data)
     });
-
-    return Promise.resolve();
   }).catch(error => {
     console.log(error);
     res.send({error: error.toString()});
@@ -94,19 +94,19 @@ app.get('/channels/:channelid', (req, res) => {
 
 // curl [::1]:8888/channels
 app.get('/channels', (req, res) => {
+  console.log(`getting channels`);
   pouch.allDocs({
     include_docs: true,
     startkey: 'channels/',
     endkey: 'channels/\ufff0'
   }).then(data => {
+    console.log(`got ${data.rows.length} channels`);
     res.send({
       ok: true,
       channels: data.rows.map(row => {
         return deleteInternalKeys(row.doc);
       })
     });
-
-    return Promise.resolve();
   }).catch(error => {
     console.log(error);
     res.send({error: error.toString()});
@@ -118,9 +118,11 @@ app.get('/channels', (req, res) => {
 // curl -H "content-type: application/json" -d '{"url": "http://www.cbc.ca/podcasting/includes/spark.xml"}' [::1]:8888/channels
 // curl -H "content-type: application/json" -d '{"url": "https://rss.art19.com/talking-machines"}' [::1]:8888/channels
 app.post('/channels', (req, res) => {
+  console.log(`adding channel at URL '${req.body.url}'`);
   let url = req.body.url;
 
   addOrUpdateChannelFromUrl(url).then(() => {
+    console.log(`channel at URL '${url}' added`);
     res.send({
       ok: true,
       id: sha256hash(url)
@@ -168,7 +170,7 @@ function addOrUpdateChannelFromUrl(url) {
 
       return pouch.put(channel).catch(error => {
         if (error.status != 409) {
-          return new Promise((resolve, reject) => { reject(error); });
+          return Promise.reject(error);
         }
 
         return pouch.get(channel._id).then(chan => {
@@ -189,7 +191,7 @@ function addOrUpdateChannelFromUrl(url) {
 
           return pouch.put(newItm).catch(error => {
             if (error.status != 409) {
-              return new Promise((resolve, reject) => { reject(error); });
+              return Promise.reject(error);
             }
 
             return pouch.get(newItm._id).then(exItem => {
