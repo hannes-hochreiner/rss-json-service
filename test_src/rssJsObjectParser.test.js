@@ -140,4 +140,18 @@ describe('parseRssJsObject', () => {
       });
     });
   });
+
+  it('should fail gracefully if there are no items', () => {
+    let parser = new xml2js.Parser();
+
+    fs.readFile('testFiles/empty.xml', function(err, data) {
+      parser.parseString(data, function (err, result) {
+        expect(parseRssJsObject(result)).toEqual({
+          title: 'C-RadaR',
+          description: 'Monatliche Radiosendung des Chaos Computer Clubs auf Radio Darmstadt. Jeden 2ten Donnerstag im Monat, 21-23 Uhr. 103,4 MHz / 99,85 MHz im Kabel / Stream. Tune In!',
+          items: []
+        });
+      });
+    });
+  });
 });

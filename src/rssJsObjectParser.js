@@ -3,7 +3,10 @@ export function parseRssJsObject(obj) {
 
   res['title'] = obj.rss.channel[0].title[0];
   res['description'] = obj.rss.channel[0].description[0];
-  res['items'] = obj.rss.channel[0].item.map(itm => {
+
+  let items = obj.rss.channel[0].item || [];
+
+  res['items'] = items.map(itm => {
     let newItm = {};
     let guid = (itm.guid[0]._ || itm.guid[0]).trim();
 
