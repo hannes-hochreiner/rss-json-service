@@ -12,70 +12,78 @@ export function httpRequest(url) {
 
 function _request(url, method, stream) {
   return new Promise((resolve, reject) => {
-    let options = new urlModule.parse(url);
-    let prot;
+    try {
+      let forwarding = false;
+      let options = new urlModule.parse(url);
+      let prot;
 
-    if (options.protocol === 'http:') {
-      prot = http;
-    } else if (options.protocol === 'https:') {
-      prot = https;
-    } else {
-      reject(new Error(`Unknown protocol ${options.protocol}`));
-      return;
-    }
-
-    if (method) {
-      options.method = method;
-    }
-
-    let req = prot.request(options, (res) => {
-      const { statusCode } = res;
-      let error;
-
-      console.log(`request ${options.href} returned status code ${statusCode}`);
-
-      if (statusCode !== 200) {
-        if (statusCode === 301 || statusCode === 302 || statusCode === 307 || statusCode === 308) {
-          res.resume();
-          resolve(_request(res.headers.location, method, stream));
-        } else {
-          // consume response data to free up memory
-          res.resume();
-          reject(new Error(`Request Failed.\nStatus Code: ${statusCode}`));
-          return;
-        }
+      if (options.protocol === 'http:') {
+        prot = http;
+      } else if (options.protocol === 'https:') {
+        prot = https;
+      } else {
+        reject(new Error(`Unknown protocol ${options.protocol}`));
+        return;
       }
 
-      let rawData = '';
-
-      // if (stream) {
-      //   stream.append('content-length', res.headers['content-length']);
-      // } else {
-      if (!stream) {
-        res.setEncoding('utf8');
+      if (method) {
+        options.method = method;
       }
 
-      res.on('data', (chunk) => {
+      let req = prot.request(options, (res) => {
+        const { statusCode } = res;
+
+        console.log(`request ${options.href} returned status code ${statusCode}`);
+
+        if (statusCode !== 200) {
+          if (statusCode === 301 || statusCode === 302 || statusCode === 307 || statusCode === 308) {
+            forwarding = true;
+            res.resume();
+            resolve(_request(res.headers.location, method, stream));
+          } else {
+            // consume response data to free up memory
+            res.resume();
+            reject(new Error(`Request Failed.\nStatus Code: ${statusCode}`));
+            return;
+          }
+        }
+
+        let rawData = '';
+
         if (stream) {
-          stream.write(chunk);
+          stream.append('content-length', res.headers['content-length']);
         } else {
-          rawData += chunk;
-        }
-      });
-
-      res.on('end', () => {
-        if (stream) {
-          stream.end();
+          res.setEncoding('utf8');
         }
 
-        resolve(rawData);
+        res.on('data', chunk => {
+          if (stream) {
+            stream.write(chunk);
+          } else {
+            rawData += chunk;
+          }
+        });
+
+        res.on('end', () => {
+          if (forwarding) {
+            return;
+          }
+          
+          if (stream) {
+            stream.end();
+          }
+
+          resolve(rawData);
+        });
       });
-    });
 
-    req.on('error', (error) => {
-      reject(error);
-    });
+      req.on('error', (error) => {
+        reject(error);
+      });
 
-    req.end();
+      req.end();
+    } catch (e) {
+      reject(e);
+    }
   });
 }
