@@ -117,6 +117,7 @@ app.get('/channels', (req, res) => {
 // curl -H "content-type: application/json" -d '{"url": "http://sixgun.org/feed/gnr"}' [::1]:8888/channels
 // curl -H "content-type: application/json" -d '{"url": "http://www.cbc.ca/podcasting/includes/spark.xml"}' [::1]:8888/channels
 // curl -H "content-type: application/json" -d '{"url": "https://rss.art19.com/talking-machines"}' [::1]:8888/channels
+// curl -H "content-type: application/json" -d '{"url": "http://www.quickanddirtytips.com/xml/getitdone.xml"}' [::1]:8888/channels
 app.post('/channels', (req, res) => {
   console.log(`adding channel at URL '${req.body.url}'`);
   let url = req.body.url;

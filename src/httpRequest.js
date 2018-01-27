@@ -32,10 +32,12 @@ function _request(url, method, stream) {
       const { statusCode } = res;
       let error;
 
+      console.log(`request ${options.href} returned status code ${statusCode}`);
+
       if (statusCode !== 200) {
         if (statusCode === 301 || statusCode === 302 || statusCode === 307 || statusCode === 308) {
           res.resume();
-          return _request(res.headers.location, method, stream);
+          resolve(_request(res.headers.location, method, stream));
         } else {
           // consume response data to free up memory
           res.resume();
@@ -59,6 +61,7 @@ function _request(url, method, stream) {
           rawData += chunk;
         }
       });
+
       res.on('end', () => {
         if (stream) {
           stream.end();
