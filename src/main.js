@@ -35,6 +35,7 @@ app.head('/channels/:channelid/items/:itemid', (req, res) => {
 
 // curl -H 'Accept: application/json' [::1]:8888/channels/7107621ce28a789b44362a5f12ee7c5e9b068adf4e7b1b139cfd6d6927f07f38/items/fa0054fda3144d0241c6a02824f3d94d81a6630b2ae2e1644f3d4ef3ca306e75
 // curl -H 'Accept: audio/mpeg' [::1]:8888/channels/7107621ce28a789b44362a5f12ee7c5e9b068adf4e7b1b139cfd6d6927f07f38/items/fa0054fda3144d0241c6a02824f3d94d81a6630b2ae2e1644f3d4ef3ca306e75
+// curl -H 'Accept: audio/mpeg' [::1]:8888/channels/ab24644cd94f1596831c2e4912806c48df114eb55db72b0c505e6ed799591198/items/3cf5f9b68aa309bde780e6818d3e6b3e221f90ca61cd3661331525d3ec18d258
 app.get('/channels/:channelid/items/:itemid', (req, res) => {
   pouch.get(`items/${req.params.channelid}/${req.params.itemid}`).then(data => {
     if (req.accepts('json')) {
