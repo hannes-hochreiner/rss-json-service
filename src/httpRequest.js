@@ -40,6 +40,7 @@ function _request(url, method, stream) {
             forwarding = true;
             res.resume();
             resolve(_request(res.headers.location, method, stream));
+            return;
           } else {
             // consume response data to free up memory
             res.resume();
@@ -68,7 +69,7 @@ function _request(url, method, stream) {
           if (forwarding) {
             return;
           }
-          
+
           if (stream) {
             stream.end();
           }
