@@ -51,13 +51,17 @@ function _request(url, method, stream) {
 
         let rawData = '';
 
-        if (stream) {
+        if (stream && method === 'HEAD') {
           stream.append('content-length', res.headers['content-length']);
         } else {
           res.setEncoding('utf8');
         }
 
         res.on('data', chunk => {
+          if (forwarding) {
+            return;
+          }
+
           if (stream) {
             stream.write(chunk);
           } else {
