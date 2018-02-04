@@ -1,6 +1,6 @@
 {
   "name": "rss-json-service",
-  "version": "1.7.8",
+  "version": "1.7.9",
   "description": "A simple RSS to JSON web service.",
   "main": "index.js",
   "scripts": {
