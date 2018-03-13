@@ -8,7 +8,8 @@ export function parseRssJsObject(obj) {
 
   res['items'] = items.map(itm => {
     let newItm = {};
-    let guid = (itm.guid[0]._ || itm.guid[0]).trim();
+    let guidTag = itm.guid || itm.link;
+    let guid = (guidTag[0]._ || guidTag[0]).trim();
 
     if (!guid || typeof guid !== 'string' || guid.length == 0) {
       throw new Error('Could not find GUID of item.');

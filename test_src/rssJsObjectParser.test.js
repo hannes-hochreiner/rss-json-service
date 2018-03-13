@@ -141,6 +141,23 @@ describe('parseRssJsObject', () => {
     });
   });
 
+  it('should parse bots feeds', () => {
+    let parser = new xml2js.Parser();
+
+    fs.readFile('testFiles/bots.xml', function(err, data) {
+      parser.parseString(data, function (err, result) {
+        expect(parseRssJsObject(result)).toEqual({
+          title: 'O\'Reilly Bots Podcast - O\'Reilly Media Podcast',
+          description: 'Exploring bots, conversational interfaces, AI, and messaging.',
+          items: [
+            { date: '2017-05-25T10:30:00.000Z', guid: 'https://www.oreilly.com/ideas/jason-laska-and-michael-akilian-on-scheduling-bots', title: 'Jason Laska and Michael Akilian on using AI to schedule meetings', enclosure: { url: 'http://dts.podtrac.com/redirect.mp3/cdn.oreillystatic.com/radar/bot-podcast/Jason_Laska_and_Michael_Akilian_on_scheduling_bots.mp3', type: 'audio/mpeg' }},
+            { date: '2017-05-11T10:45:00.000Z', guid: 'https://www.oreilly.com/ideas/chris-messina-on-facebook-as-a-utility', title: 'Chris Messina on Facebook as a utility', enclosure: { url: 'http://dts.podtrac.com/redirect.mp3/cdn.oreillystatic.com/radar/bot-podcast/Chris_Messina_on_Facebook_as_a_utility.mp3', type: 'audio/mpeg' }}
+          ]
+        });
+      });
+    });
+  });
+
   it('should fail gracefully if there are no items', () => {
     let parser = new xml2js.Parser();
 
