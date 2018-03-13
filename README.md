@@ -2,9 +2,6 @@
 A simple RSS to JSON web service.
 
 ## Failing feeds
-http://lineardigressions.com/episodes?format=RSS
-//https://feeds.podtrac.com/f2PdbXFA4K9_
-https://feeds.podtrac.com/IOJSwQcdEBcg
 http://www.rtl.fr/podcast/le-grand-jury.xml
 
 request http://www.podtrac.com/pts/redirect.mp3/feeds.soundcloud.com/stream/389140464-makingitpodcast-episode-153-thinking-hard-about-thinking-hard.mp3 returned status code 302

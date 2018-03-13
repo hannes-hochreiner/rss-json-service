@@ -158,6 +158,23 @@ describe('parseRssJsObject', () => {
     });
   });
 
+  it('should parse linear digressions feeds', () => {
+    let parser = new xml2js.Parser();
+
+    fs.readFile('testFiles/lin_digres.xml', function(err, data) {
+      parser.parseString(data, function (err, result) {
+        expect(parseRssJsObject(result)).toEqual({
+          title: 'Linear Digressions',
+          description: 'search for me',
+          items: [
+            { date: '2018-03-12T01:46:48.000Z', guid: '56c89b14c2ea51c475ee830b:56c89d67cf80a13fe9f812d7:5aa5db15f9619ae04bf186f3', title: 'Autoencoders', enclosure: { url: 'http://static1.squarespace.com/static/56c89b14c2ea51c475ee830b/t/5aa5dbc6c8302542e9d31410/1520819158384/autoencoders+produced.mp3', type: 'audio/mpeg' }},
+            { date: '2018-03-05T03:34:55.000Z', guid: '56c89b14c2ea51c475ee830b:56c89d67cf80a13fe9f812d7:5a931fe3e2c483bcb2a998f1', title: 'When is open data too open?', enclosure: { url: 'http://static1.squarespace.com/static/56c89b14c2ea51c475ee830b/t/5a9cba3dc830255b24811f2b/1520220754818/data+privacy+produced.mp3', type: 'audio/mpeg' }}
+          ]
+        });
+      });
+    });
+  });
+
   it('should fail gracefully if there are no items', () => {
     let parser = new xml2js.Parser();
 
