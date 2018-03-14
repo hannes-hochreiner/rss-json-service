@@ -17,6 +17,12 @@ function _request(url, method, stream) {
       let options = new urlModule.parse(url);
       let prot;
 
+      if (typeof options.headers === 'undefined') {
+        options.headers = {};
+      }
+
+      options.headers['User-Agent'] = 'rss-json-service';
+
       if (options.protocol === 'http:') {
         prot = http;
       } else if (options.protocol === 'https:') {
