@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/hannes-hochreiner/rss-json-service#readme",
   "dependencies": {
+    "axios": "^0.18.0",
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
     "pouchdb": "^6.3.4",

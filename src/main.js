@@ -17,6 +17,7 @@ app.use(bodyParser.json());
 
 // curl -H 'Accept: application/json' [::1]:8888/channels/7b9fe424014d93d9cc2cb83ae5cd0b63323e8739b1576b1bd055cef12990dc8a/items/e232d8d4ca4ab5f9fcaa3f1f34a560d69a86eb69df31e535fa64ae90f548899b
 // curl -H 'Accept: audio/mpeg' [::1]:8888/channels/7b9fe424014d93d9cc2cb83ae5cd0b63323e8739b1576b1bd055cef12990dc8a/items/e232d8d4ca4ab5f9fcaa3f1f34a560d69a86eb69df31e535fa64ae90f548899b
+// curl --head -H 'Accept: audio/mpeg' [::1]:8888/channels/ef1ddf81979ca4d13469072501c6de35503655c3fa8d6f8184acc28dbf2a5442/items/ff932769a9a9e25d3f76fa40a542341432f30344e0133ff1ec85ed7fe3a7d0a9
 // curl --head -H 'Accept: audio/mpeg' [::1]:8888/channels/7b9fe424014d93d9cc2cb83ae5cd0b63323e8739b1576b1bd055cef12990dc8a/items/e232d8d4ca4ab5f9fcaa3f1f34a560d69a86eb69df31e535fa64ae90f548899b
 app.head('/channels/:channelid/items/:itemid', (req, res) => {
   pouch.get(`items/${req.params.channelid}/${req.params.itemid}`).then(data => {
@@ -34,6 +35,8 @@ app.head('/channels/:channelid/items/:itemid', (req, res) => {
 });
 
 // curl -H 'Accept: application/json' [::1]:8888/channels/7107621ce28a789b44362a5f12ee7c5e9b068adf4e7b1b139cfd6d6927f07f38/items/fa0054fda3144d0241c6a02824f3d94d81a6630b2ae2e1644f3d4ef3ca306e75
+// curl -H 'Accept: audio/mpeg' [::1]:8888/channels/ef1ddf81979ca4d13469072501c6de35503655c3fa8d6f8184acc28dbf2a5442/items/ff932769a9a9e25d3f76fa40a542341432f30344e0133ff1ec85ed7fe3a7d0a9
+// curl -H 'Accept: audio/mpeg' [::1]:8888/channels/1a958cbe49b7f8a642feec0d0b1336ea25cb3fcb28a15e969f371a7706700e7e/items/e7fe57aff66c5de95fdd8d2d9dab3a7d8e8cff4a08f6efd3435e7016450387d1
 // curl -H 'Accept: audio/mpeg' [::1]:8888/channels/7107621ce28a789b44362a5f12ee7c5e9b068adf4e7b1b139cfd6d6927f07f38/items/fa0054fda3144d0241c6a02824f3d94d81a6630b2ae2e1644f3d4ef3ca306e75
 // curl -H 'Accept: audio/mpeg' [::1]:8888/channels/ab24644cd94f1596831c2e4912806c48df114eb55db72b0c505e6ed799591198/items/3cf5f9b68aa309bde780e6818d3e6b3e221f90ca61cd3661331525d3ec18d258
 app.get('/channels/:channelid/items/:itemid', (req, res) => {
@@ -57,6 +60,8 @@ app.get('/channels/:channelid/items/:itemid', (req, res) => {
   });
 });
 
+// curl [::1]:8888/channels/ef1ddf81979ca4d13469072501c6de35503655c3fa8d6f8184acc28dbf2a5442/items
+// curl [::1]:8888/channels/1a958cbe49b7f8a642feec0d0b1336ea25cb3fcb28a15e969f371a7706700e7e/items
 // curl [::1]:8888/channels/7107621ce28a789b44362a5f12ee7c5e9b068adf4e7b1b139cfd6d6927f07f38/items
 app.get('/channels/:channelid/items', (req, res) => {
   console.log(`getting items for channel with id '${req.params.channelid}'`);
@@ -115,6 +120,8 @@ app.get('/channels', (req, res) => {
 });
 
 // create a new channel
+// curl -H "content-type: application/json" -d '{"url": "https://concerning.ai/feed/"}' [::1]:8888/channels
+// curl -H "content-type: application/json" -d '{"url": "http://lineardigressions.com/episodes?format=RSS"}' [::1]:8888/channels
 // curl -H "content-type: application/json" -d '{"url": "http://sixgun.org/feed/gnr"}' [::1]:8888/channels
 // curl -H "content-type: application/json" -d '{"url": "http://www.cbc.ca/podcasting/includes/spark.xml"}' [::1]:8888/channels
 // curl -H "content-type: application/json" -d '{"url": "https://rss.art19.com/talking-machines"}' [::1]:8888/channels
