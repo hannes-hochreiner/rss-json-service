@@ -4,6 +4,25 @@ export function parseRssJsObject(obj) {
   res['title'] = obj.rss.channel[0].title[0];
   res['description'] = obj.rss.channel[0].description[0];
 
+  // get image: image -> title, url or itunes:image -> href
+  if ((typeof obj.rss.channel[0].image !== 'undefined') && (typeof obj.rss.channel[0].image[0] !== 'undefined')) {
+    res.image = {};
+
+    if ((typeof obj.rss.channel[0].image[0].title !== 'undefined') && (typeof obj.rss.channel[0].image[0].title[0] !== 'undefined')) {
+      res.image.title = obj.rss.channel[0].image[0].title[0];
+    }
+
+    if ((typeof obj.rss.channel[0].image[0].url !== 'undefined') && (typeof obj.rss.channel[0].image[0].url[0] !== 'undefined')) {
+      res.image.url = obj.rss.channel[0].image[0].url[0];
+    }
+  } else if ((typeof obj.rss.channel[0]['itunes:image'] !== 'undefined') && (typeof obj.rss.channel[0]['itunes:image'][0] !== 'undefined') && (typeof obj.rss.channel[0]['itunes:image'][0]['$'] !== 'undefined')) {
+    res.image = {};
+
+    if (typeof obj.rss.channel[0]['itunes:image'][0]['$'].href !== 'undefined') {
+      res.image.url = obj.rss.channel[0]['itunes:image'][0]['$'].href;
+    }
+  }
+
   let items = obj.rss.channel[0].item || [];
 
   res['items'] = items.map(itm => {

@@ -21,18 +21,10 @@ xmlns:googleplay="http://www.google.com/schemas/play-podcasts/1.0"
 	<sy:updateFrequency>1</sy:updateFrequency>
 	<generator>https://wordpress.org/?v=4.8.2</generator>
 
-<image>
-	<url>https://www.c-radar.de/wp-content/uploads/2016/05/cropped-chaosknoten-1-32x32.png</url>
-	<title>C-RadaR</title>
-	<link>https://www.c-radar.de</link>
-	<width>32</width>
-	<height>32</height>
-</image>
 <!-- podcast_generator="Blubrry PowerPress/7.1.1" mode="advanced" feedslug="feed" -->
 	<itunes:summary>Monatliche Radiosendung des Chaos Computer Clubs auf Radio Darmstadt. Jeden 2ten Donnerstag im Monat, 21-23 Uhr. 103,4 MHz / 99,85 MHz im Kabel / Stream. Tune In!</itunes:summary>
 	<itunes:author>C-RadaR</itunes:author>
 	<itunes:explicit>clean</itunes:explicit>
-	<itunes:image href="https://www.c-radar.de/wp-content/uploads/2017/07/Cradar_Logo1.jpg" />
 	<itunes:type>serial</itunes:type>
 	<itunes:owner>
 		<itunes:name>C-RadaR</itunes:name>
@@ -40,11 +32,6 @@ xmlns:googleplay="http://www.google.com/schemas/play-podcasts/1.0"
 	</itunes:owner>
 	<managingEditor>info@c-radar.de (C-RadaR)</managingEditor>
 	<itunes:subtitle>Monatliche Radiosendung des Chaos Computer Clubs auf Radio Darmstadt. Jeden 2ten Donnerstag im Monat, 21-23 Uhr. 103,4 MHz / 99,85 MHz im Kabel / Stream. Tune In!</itunes:subtitle>
-	<image>
-		<title>C-RadaR</title>
-		<url>https://www.c-radar.de/wp-content/uploads/2017/07/Cradar_Logo1.jpg</url>
-		<link>https://www.c-radar.de</link>
-	</image>
 	<itunes:category text="Technology">
 		<itunes:category text="Tech News"></itunes:category>
 	</itunes:category>
