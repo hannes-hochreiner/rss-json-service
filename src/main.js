@@ -8,7 +8,7 @@ import {parseRssJsObject} from './rssJsObjectParser';
 import {parseXml} from './xmlParser';
 import {sha256hash} from './sha256hash';
 import {mergePropertiesFromObject} from './objectMerger';
-import {deleteInternalKeys} from './utils';
+import {deleteInternalKeys, consoleLog} from './utils';
 
 let app = express();
 let pouch = new pouchdb('podcasts.pouchdb');
