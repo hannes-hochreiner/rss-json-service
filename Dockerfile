@@ -1,6 +1,5 @@
-FROM alpine:latest
+FROM node:10.16.2-alpine
 MAINTAINER Hannes Hochreiner <hannes@hochreiner.net>
-RUN apk add --no-cache nodejs nodejs-npm make gcc g++ python2
 RUN mkdir -p /opt/rss-json-service
 COPY src /opt/rss-json-service/src
 COPY package.json /opt/rss-json-service/package.json
