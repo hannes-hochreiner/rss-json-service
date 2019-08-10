@@ -29,7 +29,7 @@ app.head('/channels/:channelid/items/:itemid', (req, res) => {
       return Promise.resolve();
     }
   }).catch(error => {
-    console.log(error);
+    consoleLog(error);
     res.send({error: error.toString()});
   });
 });
@@ -55,7 +55,7 @@ app.get('/channels/:channelid/items/:itemid', (req, res) => {
       return Promise.resolve();
     }
   }).catch(error => {
-    console.log(error);
+    consoleLog(error);
     res.send({error: error.toString()});
   });
 });
@@ -64,13 +64,13 @@ app.get('/channels/:channelid/items/:itemid', (req, res) => {
 // curl [::1]:8888/channels/1a958cbe49b7f8a642feec0d0b1336ea25cb3fcb28a15e969f371a7706700e7e/items
 // curl [::1]:8888/channels/7107621ce28a789b44362a5f12ee7c5e9b068adf4e7b1b139cfd6d6927f07f38/items
 app.get('/channels/:channelid/items', (req, res) => {
-  console.log(`getting items for channel with id '${req.params.channelid}'`);
+  consoleLog(`getting items for channel with id '${req.params.channelid}'`);
   pouch.allDocs({
     include_docs: true,
     startkey: `items/${req.params.channelid}/`,
     endkey: `items/${req.params.channelid}/\ufff0`
   }).then(data => {
-    console.log(`got ${data.rows.length} items for channel with id '${req.params.channelid}'`);
+    consoleLog(`got ${data.rows.length} items for channel with id '${req.params.channelid}'`);
     res.send({
       ok: true,
       items: data.rows.map(row => {
@@ -78,35 +78,35 @@ app.get('/channels/:channelid/items', (req, res) => {
       })
     });
   }).catch(error => {
-    console.log(error);
+    consoleLog(error);
     res.send({error: error.toString()});
   });
 });
 
 // curl [::1]:8888/channels/7107621ce28a789b44362a5f12ee7c5e9b068adf4e7b1b139cfd6d6927f07f38
 app.get('/channels/:channelid', (req, res) => {
-  console.log(`getting channel with id '${req.params.channelid}'`);
+  consoleLog(`getting channel with id '${req.params.channelid}'`);
   pouch.get(`channels/${req.params.channelid}`).then(data => {
-    console.log(`got channel with id '${req.params.channelid}'`);
+    consoleLog(`got channel with id '${req.params.channelid}'`);
     res.send({
       ok: true,
       channel: deleteInternalKeys(data)
     });
   }).catch(error => {
-    console.log(error);
+    consoleLog(error);
     res.send({error: error.toString()});
   });
 });
 
 // curl [::1]:8888/channels
 app.get('/channels', (req, res) => {
-  console.log(`getting channels`);
+  consoleLog(`getting channels`);
   pouch.allDocs({
     include_docs: true,
     startkey: 'channels/',
     endkey: 'channels/\ufff0'
   }).then(data => {
-    console.log(`got ${data.rows.length} channels`);
+    consoleLog(`got ${data.rows.length} channels`);
     res.send({
       ok: true,
       channels: data.rows.map(row => {
@@ -114,7 +114,7 @@ app.get('/channels', (req, res) => {
       })
     });
   }).catch(error => {
-    console.log(error);
+    consoleLog(error);
     res.send({error: error.toString()});
   });
 });
@@ -128,23 +128,23 @@ app.get('/channels', (req, res) => {
 // curl -H "content-type: application/json" -d '{"url": "http://www.quickanddirtytips.com/xml/getitdone.xml"}' [::1]:8888/channels
 // curl -H "content-type: application/json" -d '{"url": "https://makingembeddedsystems.libsyn.com/rss"}' [::1]:8888/channels
 app.post('/channels', (req, res) => {
-  console.log(`adding channel at URL '${req.body.url}'`);
+  consoleLog(`adding channel at URL '${req.body.url}'`);
   let url = req.body.url;
 
   addOrUpdateChannelFromUrl(url).then(() => {
-    console.log(`channel at URL '${url}' added`);
+    consoleLog(`channel at URL '${url}' added`);
     res.send({
       ok: true,
       id: sha256hash(url)
     });
   }).catch(error => {
-    console.log(error);
+    consoleLog(error);
     res.send({error: error.toString()});
   });
 });
 
 app.listen(8888, () => {
-  console.log('listening on http://[::1]:8888');
+  consoleLog('listening on http://[::1]:8888');
 });
 
 timer.setInterval(() => {
@@ -155,13 +155,15 @@ timer.setInterval(() => {
   }).then(data => {
     return Promise.all(data.rows.map(row => {
       return addOrUpdateChannelFromUrl(row.doc.url).catch(error => {
-        console.log(`error updating ${row.doc.url}: ${error}`);
+        consoleLog(`error updating ${row.doc.url}: ${error}`);
+
+        return Promise.resolve();
       });
     }));
   }).catch(error => {
-    console.log(`error updating feeds: ${error}`);
+    consoleLog(`error updating feeds: ${error}`);
   });
-}, 1000 * 3600 * 24);
+}, 1000 * 3600 * 12);
 
 function addOrUpdateChannelFromUrl(url) {
   return httpRequest(url).then(data => {

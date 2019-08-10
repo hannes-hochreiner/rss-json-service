@@ -7,3 +7,7 @@ export function deleteInternalKeys(obj) {
 
   return obj;
 }
+
+export function consoleLog(str) {
+  console.log(`${(new Date()).toISOString()}: ${str}`);
+}
