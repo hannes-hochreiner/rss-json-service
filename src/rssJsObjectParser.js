@@ -24,6 +24,10 @@ export function parseRssJsObject(obj) {
     newItm['guid'] = guid;
     newItm['date'] = (new Date(pubDate)).toISOString();
     newItm['title'] = itm.title[0];
+    
+    if (typeof itm['itunes:subtitle'] !== 'undefined') {
+      newItm['subtitle'] = itm['itunes:subtitle'][0].trim() || '';
+    }
 
     if (itm.enclosure) {
       newItm['enclosure'] = {};
