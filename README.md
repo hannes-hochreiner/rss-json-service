@@ -8,14 +8,13 @@ The service parses a list of RSS feeds periodically into objects with the follow
 struct RssEnclosure {
   url: String,
   mime_type: String,
+  length: i32,
 }
 
 struct RssItem {
   date: DateTime,
-  guid: String,
   title: String,
-  subtitle: String,
-  enclosure: RssEnclosure
+  enclosure: RssEnclosure,
 }
 
 struct RssChannel {
