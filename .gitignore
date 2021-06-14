@@ -4,3 +4,6 @@
 
 # Exclude legacy, which was only kept to help create new tests
 /legacy
+
+# Exclude variable file
+/ansible/vars.yml

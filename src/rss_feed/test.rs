@@ -137,10 +137,16 @@ fn parse_lin_digres() {
 
 #[test]
 fn parse_date_1() {
-    assert_eq!(RssFeed::parse_date("Tue, 13 Mar 2018 19:08:36 +0000").unwrap(), DateTime::parse_from_rfc3339("2018-03-13T19:08:36Z").unwrap());
+    assert_eq!(
+        RssFeed::parse_date("Tue, 13 Mar 2018 19:08:36 +0000").unwrap(),
+        DateTime::parse_from_rfc3339("2018-03-13T19:08:36Z").unwrap()
+    );
 }
 
 #[test]
 fn parse_date_2() {
-    assert_eq!(RssFeed::parse_date("25 Nov 2016 9:30:00 +0100").unwrap(), DateTime::parse_from_rfc3339("2016-11-25T08:30:00Z").unwrap());
+    assert_eq!(
+        RssFeed::parse_date("25 Nov 2016 9:30:00 +0100").unwrap(),
+        DateTime::parse_from_rfc3339("2016-11-25T08:30:00Z").unwrap()
+    );
 }

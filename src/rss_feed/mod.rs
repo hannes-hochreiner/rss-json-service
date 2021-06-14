@@ -128,11 +128,15 @@ impl RssFeed {
     }
 
     fn parse_enclosure(enclosure: Node) -> Result<RssEnclosure> {
-        match (enclosure.attribute("url"), enclosure.attribute("type"), enclosure.attribute("length")) {
+        match (
+            enclosure.attribute("url"),
+            enclosure.attribute("type"),
+            enclosure.attribute("length"),
+        ) {
             (Some(url), Some(mime_type), Some(length)) => Ok(RssEnclosure {
                 url: String::from(url),
                 mime_type: String::from(mime_type),
-                length: i32::from_str_radix(length, 10)?
+                length: i32::from_str_radix(length, 10)?,
             }),
             _ => Err(anyhow::Error::msg("could not parse enclosure")),
         }
@@ -142,8 +146,9 @@ impl RssFeed {
         let res = DateTime::parse_from_rfc2822(date).context("error parsing date");
 
         match res {
-            Err(_) => DateTime::parse_from_str(date, "%d %b %Y %k:%M:%S%.3f %z").context("error parsing date"),
-            _ => res
+            Err(_) => DateTime::parse_from_str(date, "%d %b %Y %k:%M:%S%.3f %z")
+                .context("error parsing date"),
+            _ => res,
         }
     }
 }
