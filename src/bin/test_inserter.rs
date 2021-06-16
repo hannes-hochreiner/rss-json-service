@@ -1,6 +1,6 @@
-use anyhow::{Result};
+use anyhow::Result;
 use std::env;
-use tokio_postgres::{NoTls};
+use tokio_postgres::NoTls;
 use uuid::{self, Uuid};
 
 #[tokio::main] // By default, tokio_postgres uses the tokio crate as its runtime.

@@ -1,15 +1,18 @@
 extern crate rss_json_service;
-use rss_feed::RssFeed;
-use rss_json_service::rss_feed;
 use anyhow::Result;
+use hyper::Client as HttpClient;
+use hyper_tls::HttpsConnector;
+use rss_feed::RssFeed;
 use rss_json_service::repo::Repo;
-use std::env;
-use tokio_postgres::{NoTls};
+use rss_json_service::rss_feed;
+use std::convert::TryFrom;
+use std::{env, str};
+use tokio_postgres::NoTls;
 
 #[tokio::main]
 async fn main() -> Result<()> {
     // Connect to the database.
-    let (client, connection) = tokio_postgres::connect(
+    let (db_client, connection) = tokio_postgres::connect(
         &*format!(
             "postgresql://updater:{}@localhost:5432/rss_json",
             env::var("UPDATER_PASSWORD")?
@@ -25,7 +28,23 @@ async fn main() -> Result<()> {
             eprintln!("connection error: {}", e);
         }
     });
-    
-    Repo::get_feeds(&client).await?;
+
+    let https = HttpsConnector::new();
+    let http_client = HttpClient::builder().build::<_, hyper::Body>(https);
+    let feeds = Repo::get_feeds(&db_client).await?;
+
+    for feed in feeds {
+        // TODO: determine whether the url is http or https and choose the client accordingly
+        // let client = HttpClient::new();
+        let res = http_client.get(feed.url.parse()?).await?;
+        // TODO: If the feed moved permanently, update the feed url
+        println!("status: {}", res.status());
+
+        // Concatenate the body stream into a single buffer...
+        let buf = hyper::body::to_bytes(res).await?;
+        let feed = RssFeed::try_from(str::from_utf8(&buf)?)?;
+        println!("{:?}", feed);
+    }
+
     Ok(())
 }

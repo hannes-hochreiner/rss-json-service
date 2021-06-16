@@ -153,11 +153,11 @@ impl RssFeed {
     }
 }
 
-impl TryFrom<String> for RssFeed {
+impl TryFrom<&str> for RssFeed {
     type Error = anyhow::Error;
 
-    fn try_from(value: String) -> Result<Self, Self::Error> {
-        let doc = Document::parse(value.as_str())?;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        let doc = Document::parse(value)?;
 
         Self::parse_root(doc.root_element())
     }

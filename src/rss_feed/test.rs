@@ -7,7 +7,7 @@ use std::{convert::TryFrom, fs};
 
 #[test]
 fn parse_bots() {
-    let feed = RssFeed::try_from(fs::read_to_string("testFiles/bots.xml").unwrap()).unwrap();
+    let feed = RssFeed::try_from(&*fs::read_to_string("testFiles/bots.xml").unwrap()).unwrap();
 
     assert_eq!(feed.channels.len(), 1);
     assert_eq!(
@@ -40,7 +40,7 @@ fn parse_bots() {
 
 #[test]
 fn parse_c_radar() {
-    let feed = RssFeed::try_from(fs::read_to_string("testFiles/c-radar.xml").unwrap()).unwrap();
+    let feed = RssFeed::try_from(&*fs::read_to_string("testFiles/c-radar.xml").unwrap()).unwrap();
 
     assert_eq!(feed.channels.len(), 1);
     assert_eq!(
@@ -84,7 +84,7 @@ fn parse_c_radar() {
 
 #[test]
 fn parse_empty() {
-    let feed = RssFeed::try_from(fs::read_to_string("testFiles/empty.xml").unwrap()).unwrap();
+    let feed = RssFeed::try_from(&*fs::read_to_string("testFiles/empty.xml").unwrap()).unwrap();
 
     assert_eq!(feed.channels.len(), 1);
     assert_eq!(
@@ -100,7 +100,8 @@ fn parse_empty() {
 
 #[test]
 fn parse_lin_digres() {
-    let feed = RssFeed::try_from(fs::read_to_string("testFiles/lin_digres.xml").unwrap()).unwrap();
+    let feed =
+        RssFeed::try_from(&*fs::read_to_string("testFiles/lin_digres.xml").unwrap()).unwrap();
 
     assert_eq!(feed.channels.len(), 1);
     assert_eq!(
