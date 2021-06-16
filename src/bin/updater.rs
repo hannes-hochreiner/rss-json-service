@@ -62,6 +62,30 @@ async fn main() -> Result<()> {
                     .await?
                 }
             }
+
+            for rss_item in &rss_channel.items {
+                match Repo::get_item_by_title_date_channel_id(
+                    &db_client,
+                    &*rss_item.title,
+                    &rss_item.date,
+                    &db_channel.id,
+                )
+                .await?
+                {
+                    Some(i) => { Repo::update_item(&db_client, &i).await?; },
+                    None => {
+                        Repo::create_item(
+                            &db_client,
+                            &*rss_item.title,
+                            &rss_item.date,
+                            &*rss_item.enclosure.mime_type,
+                            &*rss_item.enclosure.url,
+                            &db_channel.id,
+                        )
+                        .await?;
+                    }
+                }
+            }
         }
         println!("{:?}", rss_feed);
     }

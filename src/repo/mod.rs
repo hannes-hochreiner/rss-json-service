@@ -1,4 +1,5 @@
 use anyhow::Result;
+use chrono::{DateTime, FixedOffset};
 use std::{convert::TryFrom, str};
 use tokio_postgres::{Client, Row};
 use uuid::Uuid;
@@ -37,6 +38,30 @@ impl TryFrom<&Row> for Channel {
             title: row.try_get("title")?,
             image: row.try_get("image")?,
             feed_id: row.try_get("feed_id")?,
+        })
+    }
+}
+
+pub struct Item {
+    pub id: Uuid,
+    pub title: String,
+    pub date: DateTime<FixedOffset>,
+    pub enclosure_type: String,
+    pub enclosure_url: String,
+    pub channel_id: Uuid,
+}
+
+impl TryFrom<&Row> for Item {
+    type Error = anyhow::Error;
+
+    fn try_from(row: &Row) -> Result<Self, Self::Error> {
+        Ok(Item {
+            id: row.try_get("id")?,
+            title: row.try_get("title")?,
+            date: row.try_get("date")?,
+            enclosure_type: row.try_get("enclosure_type")?,
+            enclosure_url: row.try_get("enclosure_url")?,
+            channel_id: row.try_get("channel_id")?,
         })
     }
 }
@@ -89,6 +114,51 @@ impl Repo {
 
         match rows.len() {
             1 => Ok(Channel::try_from(&rows[0])?),
+            _ => Err(anyhow::Error::msg("error updating channel")),
+        }
+    }
+
+    pub async fn get_item_by_title_date_channel_id(
+        client: &Client,
+        title: &str,
+        date: &DateTime<FixedOffset>,
+        channel_id: &Uuid,
+    ) -> Result<Option<Item>> {
+        let rows = client
+            .query(
+                "SELECT * FROM items WHERE title=$1 AND date=$2 AND channel_id=$3",
+                &[&title, date, channel_id],
+            )
+            .await?;
+
+        match rows.len() {
+            0 => Ok(None),
+            1 => Ok(Some(Item::try_from(&rows[0])?)),
+            _ => Err(anyhow::Error::msg("more than one row found")),
+        }
+    }
+
+    pub async fn create_item(
+        client: &Client,
+        title: &str,
+        date: &DateTime<FixedOffset>,
+        enclosure_type: &str,
+        enclosure_url: &str,
+        channel_id: &Uuid,
+    ) -> Result<Item> {
+        let rows = client.query("INSERT INTO items (id, title, date, enclosure_type, enclosure_url, channel_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *", &[&Uuid::new_v4(), &title, date, &enclosure_type, &enclosure_url, channel_id]).await?;
+
+        match rows.len() {
+            1 => Ok(Item::try_from(&rows[0])?),
+            _ => Err(anyhow::Error::msg("error creating channel")),
+        }
+    }
+
+    pub async fn update_item(client: &Client, item: &Item) -> Result<Item> {
+        let rows = client.query("UPDATE items SET title=$1, date=$2, enclosure_type=$3, enclosure_url=$4, channel_id=$5 WHERE id=$6 RETURNING *", &[&item.title, &item.date, &item.enclosure_type, &item.enclosure_url, &item.channel_id, &item.id]).await?;
+
+        match rows.len() {
+            1 => Ok(Item::try_from(&rows[0])?),
             _ => Err(anyhow::Error::msg("error updating channel")),
         }
     }

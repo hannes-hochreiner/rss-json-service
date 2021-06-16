@@ -17,7 +17,7 @@ CREATE TABLE items (
   date timestamp with time zone NOT NULL,
   enclosure_type varchar(128) NOT NULL,
   enclosure_url varchar(1024) NOT NULL,
-  channel_id uuid REFERENCES channel (id)
+  channel_id uuid REFERENCES channels (id)
 );
 
 
