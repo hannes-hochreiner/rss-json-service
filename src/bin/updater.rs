@@ -33,17 +33,37 @@ async fn main() -> Result<()> {
     let http_client = HttpClient::builder().build::<_, hyper::Body>(https);
     let feeds = Repo::get_feeds(&db_client).await?;
 
-    for feed in feeds {
+    for db_feed in feeds {
         // TODO: determine whether the url is http or https and choose the client accordingly
         // let client = HttpClient::new();
-        let res = http_client.get(feed.url.parse()?).await?;
+        let res = http_client.get(db_feed.url.parse()?).await?;
         // TODO: If the feed moved permanently, update the feed url
         println!("status: {}", res.status());
 
         // Concatenate the body stream into a single buffer...
         let buf = hyper::body::to_bytes(res).await?;
-        let feed = RssFeed::try_from(str::from_utf8(&buf)?)?;
-        println!("{:?}", feed);
+        let rss_feed = RssFeed::try_from(str::from_utf8(&buf)?)?;
+
+        for rss_channel in &rss_feed.channels {
+            let db_channel;
+
+            match Repo::get_channel_by_title_feed_id(&db_client, &*rss_channel.title, &db_feed.id)
+                .await?
+            {
+                Some(c) => db_channel = Repo::update_channel(&db_client, &c).await?,
+                None => {
+                    db_channel = Repo::create_channel(
+                        &db_client,
+                        &*rss_channel.title,
+                        &*rss_channel.description,
+                        &rss_channel.image,
+                        &db_feed.id,
+                    )
+                    .await?
+                }
+            }
+        }
+        println!("{:?}", rss_feed);
     }
 
     Ok(())

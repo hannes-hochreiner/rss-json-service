@@ -59,9 +59,37 @@ impl Repo {
         client: &Client,
         title: &str,
         feed_id: &Uuid,
-    ) -> Result<Channel> {
+    ) -> Result<Option<Channel>> {
         let rows = client.query("SELECT id, title, description, image, feed_id FROM channels WHERE title=$1 AND feed_id=$2", &[&title, feed_id]).await?;
 
-        Ok(Channel::try_from(&rows[0])?)
+        match rows.len() {
+            0 => Ok(None),
+            1 => Ok(Some(Channel::try_from(&rows[0])?)),
+            _ => Err(anyhow::Error::msg("more than one row found")),
+        }
+    }
+
+    pub async fn create_channel(
+        client: &Client,
+        title: &str,
+        description: &str,
+        image: &Option<String>,
+        feed_id: &Uuid,
+    ) -> Result<Channel> {
+        let rows = client.query("INSERT INTO channels (id, title, description, image, feed_id) VALUES ($1, $2, $3, $4, $5) RETURNING *", &[&Uuid::new_v4(), &title, &description, &image, feed_id]).await?;
+
+        match rows.len() {
+            1 => Ok(Channel::try_from(&rows[0])?),
+            _ => Err(anyhow::Error::msg("error creating channel")),
+        }
+    }
+
+    pub async fn update_channel(client: &Client, channel: &Channel) -> Result<Channel> {
+        let rows = client.query("UPDATE channels SET title=$1, description=$2, image=$3, feed_id=$4 WHERE id=$5 RETURNING *", &[&channel.title, &channel.description, &channel.image, &channel.feed_id, &channel.id]).await?;
+
+        match rows.len() {
+            1 => Ok(Channel::try_from(&rows[0])?),
+            _ => Err(anyhow::Error::msg("error updating channel")),
+        }
     }
 }

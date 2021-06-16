@@ -3,7 +3,7 @@ CREATE TABLE feeds (
   url varchar(1024) UNIQUE NOT NULL
 );
 
-CREATE TABLE channel (
+CREATE TABLE channels (
   id uuid PRIMARY KEY,
   title varchar(512) UNIQUE NOT NULL,
   description varchar(2048) NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE channel (
   feed_id uuid REFERENCES feeds (id)
 );
 
-CREATE TABLE item (
+CREATE TABLE items (
   id uuid PRIMARY KEY,
   title varchar(512) NOT NULL,
   date timestamp with time zone NOT NULL,
@@ -24,5 +24,5 @@ CREATE TABLE item (
 CREATE ROLE updater LOGIN PASSWORD '{{updater_password}}';
 
 GRANT SELECT, INSERT, UPDATE ON feeds TO updater;
-GRANT SELECT, INSERT, UPDATE ON channel TO updater;
-GRANT SELECT, INSERT, UPDATE ON item TO updater;
+GRANT SELECT, INSERT, UPDATE ON channels TO updater;
+GRANT SELECT, INSERT, UPDATE ON items TO updater;

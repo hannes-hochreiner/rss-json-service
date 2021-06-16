@@ -8,29 +8,29 @@ mod test;
 
 #[derive(Debug)]
 pub struct RssFeed {
-    channels: Vec<RssChannel>,
+    pub channels: Vec<RssChannel>,
 }
 
 #[derive(Debug, PartialEq)]
 pub struct RssChannel {
-    title: String,
-    description: String,
-    image: Option<String>,
-    items: Vec<RssItem>,
+    pub title: String,
+    pub description: String,
+    pub image: Option<String>,
+    pub items: Vec<RssItem>,
 }
 
 #[derive(Debug, PartialEq)]
-struct RssEnclosure {
-    url: String,
-    mime_type: String,
-    length: i32,
+pub struct RssEnclosure {
+    pub url: String,
+    pub mime_type: String,
+    pub length: i32,
 }
 
 #[derive(Debug, PartialEq)]
-struct RssItem {
-    date: DateTime<FixedOffset>,
-    title: String,
-    enclosure: RssEnclosure,
+pub struct RssItem {
+    pub date: DateTime<FixedOffset>,
+    pub title: String,
+    pub enclosure: RssEnclosure,
 }
 
 impl RssFeed {
