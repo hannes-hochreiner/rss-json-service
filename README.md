@@ -60,3 +60,13 @@ The program can be run with the following command:
 ```bash
 UPDATER_PASSWORD=<password> cargo run --bin test_inserter
 ```
+
+## Deployment
+
+### rss-json-service
+
+The rss-json-service expects two environment variables providing the database credentials.
+
+```bash
+RSS_JSON_USER=<db_user> RSS_JSON_PASSWORD=<db_password> cargo run --bin rss-json-service
+```

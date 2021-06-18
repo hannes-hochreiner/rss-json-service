@@ -72,7 +72,9 @@ async fn main() -> Result<()> {
                 )
                 .await?
                 {
-                    Some(i) => { Repo::update_item(&db_client, &i).await?; },
+                    Some(i) => {
+                        Repo::update_item(&db_client, &i).await?;
+                    }
                     None => {
                         Repo::create_item(
                             &db_client,

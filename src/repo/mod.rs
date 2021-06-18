@@ -1,5 +1,6 @@
 use anyhow::Result;
 use chrono::{DateTime, FixedOffset};
+use serde::Serialize;
 use std::{convert::TryFrom, str};
 use tokio_postgres::{Client, Row};
 use uuid::Uuid;
@@ -20,6 +21,7 @@ impl TryFrom<&Row> for Feed {
     }
 }
 
+#[derive(Debug, Serialize)]
 pub struct Channel {
     pub id: Uuid,
     pub title: String,
@@ -42,6 +44,7 @@ impl TryFrom<&Row> for Channel {
     }
 }
 
+#[derive(Debug, Serialize)]
 pub struct Item {
     pub id: Uuid,
     pub title: String,
@@ -94,6 +97,17 @@ impl Repo {
         }
     }
 
+    pub async fn get_all_channels(client: &Client) -> Result<Vec<Channel>> {
+        let rows = client.query("SELECT * FROM channels", &[]).await?;
+        let mut res = Vec::<Channel>::new();
+
+        for row in rows {
+            res.push(Channel::try_from(&row)?)
+        }
+
+        Ok(res)
+    }
+
     pub async fn create_channel(
         client: &Client,
         title: &str,
@@ -116,6 +130,19 @@ impl Repo {
             1 => Ok(Channel::try_from(&rows[0])?),
             _ => Err(anyhow::Error::msg("error updating channel")),
         }
+    }
+
+    pub async fn get_items_by_channel_id(client: &Client, channel_id: &Uuid) -> Result<Vec<Item>> {
+        let rows = client
+            .query("SELECT * FROM items WHERE channel_id = $1", &[channel_id])
+            .await?;
+        let mut res = Vec::<Item>::new();
+
+        for row in rows {
+            res.push(Item::try_from(&row)?)
+        }
+
+        Ok(res)
     }
 
     pub async fn get_item_by_title_date_channel_id(
