@@ -145,6 +145,18 @@ impl Repo {
         Ok(res)
     }
 
+    pub async fn get_item_by_id(client: &Client, id: &Uuid) -> Result<Item> {
+        let rows = client
+            .query("SELECT * FROM items WHERE id = $1", &[id])
+            .await?;
+
+        match rows.len() {
+            0 => Err(anyhow::Error::msg("item not found")),
+            1 => Ok(Item::try_from(&rows[0])?),
+            _ => Err(anyhow::Error::msg("more than one row found")),
+        }
+    }
+
     pub async fn get_item_by_title_date_channel_id(
         client: &Client,
         title: &str,
