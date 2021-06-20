@@ -105,7 +105,7 @@ impl Repo {
         Ok(res)
     }
 
-    pub async fn get_item_by_id(self, id: &Uuid) -> Result<Item> {
+    pub async fn get_item_by_id(&self, id: &Uuid) -> Result<Item> {
         let rows = self
             .client
             .query("SELECT * FROM items WHERE id = $1", &[id])
