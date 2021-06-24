@@ -69,13 +69,9 @@ async fn item_stream(repo: &State<Repo>, item_id: &str) -> Result<ByteStream![By
 #[launch]
 async fn rocket() -> _ {
     env_logger::init();
-    let repo = Repo::new(&*format!(
-        "postgresql://{}:{}@localhost:5432/rss_json",
-        env::var("RSS_JSON_USER").unwrap(),
-        env::var("RSS_JSON_PASSWORD").unwrap(),
-    ))
-    .await
-    .unwrap();
+    let repo = Repo::new(&*env::var("RSS_JSON_CONNECTION").unwrap())
+        .await
+        .unwrap();
 
     rocket::build()
         .manage(repo)

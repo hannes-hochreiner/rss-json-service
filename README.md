@@ -68,7 +68,7 @@ UPDATER_PASSWORD=<password> cargo run --bin test_inserter
 The rss-json-service expects two environment variables providing the database credentials.
 
 ```bash
-RSS_JSON_USER=<db_user> RSS_JSON_PASSWORD=<db_password> cargo run --bin rss-json-service
+RSS_JSON_CONNECTION=postgresql://<rss-json db user>:<rss-json password>@<host>:5432/rss_json cargo run --bin rss-json-service
 ```
 
 ### updater
@@ -76,5 +76,5 @@ RSS_JSON_USER=<db_user> RSS_JSON_PASSWORD=<db_password> cargo run --bin rss-json
 The updater tries to obtain the connection string for the database from the environment variable `UPDATER_CONNECTION`.
 
 ```bash
-UPDATER_CONNECTION=postgresql://<updater user>:<updater password>@<host>:5432/rss_json
+UPDATER_CONNECTION=postgresql://<updater db user>:<updater password>@<host>:5432/rss_json cargo run --bin updater
 ```
