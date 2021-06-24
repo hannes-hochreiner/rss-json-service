@@ -9,8 +9,10 @@
       POSTGRES_DB: "rss_json"
       POSTGRES_PASSWORD: "{{db_password}}"
 
-- name: test
-  shell: |
-      /usr/bin/psql postgresql://postgres:{{db_password}}@localhost:5432/rss_json << EOF
-      {{lookup('template', '../pg-scripts/2021-06-13_create_db.sql') }}
-      EOF
+- name: "Load SQL script into a variable"
+  set_fact:
+    sql_script: "{{lookup('template', '../pg-scripts/2021-06-13_create_db.sql') }}"
+
+- name: "Execute script from variable"
+  command: "/usr/bin/psql postgresql://postgres:{{db_password}}@localhost:5432/rss_json -c \"{{ sql_script }}\""
+    # register: sql_response_variable

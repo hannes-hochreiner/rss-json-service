@@ -35,7 +35,7 @@ struct RssItem {
 A local container was used as a development database.
 
 ```bash
-podman run --name rss-json -e POSTGRES_DB=rss_json -e POSTGRES_PASSWORD=<password> -p 5432:5432 -d postgres:alpine
+podman run --name rss_json -e POSTGRES_DB=rss_json -e POSTGRES_PASSWORD=<password> -p 5432:5432 -d postgres:alpine
 ```
 
 The database scripts were then executed using the local psql.
@@ -45,7 +45,14 @@ psql postgresql://postgres:<password>@localhost:5432/rss_json -f pg-scripts/2021
 ```
 
 An Ansible script automating this process can be found in the `ansible` folder.
-The scripts expects a variable named `db_password`, which must be provided in a file names `vars.yml` in the Ansible folder.
+The scripts expects the variables listed in the table below, which must be provided in a file names `vars.yml` in the Ansible folder.
+
+| variable name | description |
+| ------------- | ----------- |
+| db_password | db master password |
+| updater_password | password for the updater user |
+| service_password | password for the service user |
+
 If the password is encrypted with Ansible vault, the ansible script can be run with the following command:
 
 ```bash
@@ -58,7 +65,7 @@ A program names `test_inserter` is provided to create some entries in the feeds 
 The program can be run with the following command:
 
 ```bash
-UPDATER_PASSWORD=<password> cargo run --bin test_inserter
+TEST_INSERTER_CONNECTION=postgresql://<test inserter db user>:<test inserter password>@<host>:5432/rss_json cargo run --bin test_inserter
 ```
 
 ## Deployment
