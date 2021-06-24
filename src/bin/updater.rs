@@ -2,23 +2,18 @@ extern crate rss_json_service;
 use anyhow::Result;
 use hyper::Client as HttpClient;
 use hyper_tls::HttpsConnector;
+use log::{error, info};
 use rss_feed::RssFeed;
 use rss_json_service::repo::feed::Feed;
 use rss_json_service::repo::Repo;
 use rss_json_service::rss_feed;
 use std::convert::TryFrom;
 use std::{env, str};
-use log::{info, error};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     env_logger::init();
-    let repo = Repo::new(&*format!(
-        "postgresql://updater:{}@localhost:5432/rss_json",
-        env::var("UPDATER_PASSWORD")?
-    ))
-    .await?;
-
+    let repo = Repo::new(&*env::var("UPDATER_CONNECTION")?).await?;
     let feeds = repo.get_feeds().await?;
 
     for db_feed in feeds {
