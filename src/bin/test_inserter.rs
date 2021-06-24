@@ -6,14 +6,8 @@ use uuid::{self, Uuid};
 #[tokio::main] // By default, tokio_postgres uses the tokio crate as its runtime.
 async fn main() -> Result<()> {
     // Connect to the database.
-    let (client, connection) = tokio_postgres::connect(
-        &*format!(
-            "postgresql://updater:{}@localhost:5432/rss_json",
-            env::var("UPDATER_PASSWORD")?
-        ),
-        NoTls,
-    )
-    .await?;
+    let (client, connection) =
+        tokio_postgres::connect(&*env::var("TEST_INSERTER_CONNECTION")?, NoTls).await?;
 
     // The connection object performs the actual communication with the database,
     // so spawn it off to run on its own.
@@ -23,15 +17,20 @@ async fn main() -> Result<()> {
         }
     });
 
-    let uuid = Uuid::new_v4();
-    let url = "https://rss.art19.com/the-take";
-    // Now we can execute a simple statement that just returns its parameter.
-    let _ = client
-        .query(
-            "INSERT INTO feeds (id, url) VALUES ($1, $2)",
-            &[&uuid, &url],
-        )
-        .await?;
+    let urls = vec![
+        "https://rss.art19.com/the-take",
+        "https://feed.podbean.com/wtyppod/feed.xml",
+        "https://www.theverge.com/rss/index.xml",
+    ];
+
+    for url in urls {
+        client
+            .query(
+                "INSERT INTO feeds (id, url) VALUES ($1, $2)",
+                &[&Uuid::new_v4(), &url],
+            )
+            .await?;
+    }
 
     Ok(())
 }
